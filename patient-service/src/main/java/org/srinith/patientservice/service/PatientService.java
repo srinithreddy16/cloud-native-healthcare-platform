@@ -3,6 +3,7 @@ package org.srinith.patientservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.srinith.patientservice.grpc.BillingServiceGrpcClient;
 import org.srinith.patientservice.dto.PatientRequestDTO;
 import org.srinith.patientservice.dto.PatientResponseDTO;
 import org.srinith.patientservice.mapper.PatientMapper;
@@ -21,8 +22,12 @@ public class PatientService {
     @Autowired
     private PatientRepository patientRepository;
 
-    public PatientService(PatientRepository patientRepository){
+    @Autowired
+    private BillingServiceGrpcClient billingServiceGrpcClient;
+
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient){
         this.patientRepository = patientRepository;
+        this.billingServiceGrpcClient = billingServiceGrpcClient;
     }
 
 
@@ -36,6 +41,13 @@ public class PatientService {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDTO.getEmail());
         }
         Patient newPatient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
+
+        billingServiceGrpcClient.createBillingAccount(
+                newPatient.getId().toString(),
+                newPatient.getName(),
+                newPatient.getEmail()
+        );
+
         return PatientMapper.toDTO(newPatient);
     }
 
