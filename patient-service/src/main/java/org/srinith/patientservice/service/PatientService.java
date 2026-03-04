@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.srinith.patientservice.grpc.BillingServiceGrpcClient;
 import org.srinith.patientservice.dto.PatientRequestDTO;
 import org.srinith.patientservice.dto.PatientResponseDTO;
+import org.srinith.patientservice.kafka.KafkaProducer;
 import org.srinith.patientservice.mapper.PatientMapper;
 import org.srinith.patientservice.model.Patient;
 import org.srinith.patientservice.repository.PatientRepository;
@@ -25,9 +26,13 @@ public class PatientService {
     @Autowired
     private BillingServiceGrpcClient billingServiceGrpcClient;
 
-    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient){
+    @Autowired
+    private KafkaProducer kafkaProducer;
+
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient, KafkaProducer kafkaProducer) {
         this.patientRepository = patientRepository;
         this.billingServiceGrpcClient = billingServiceGrpcClient;
+        this.kafkaProducer = kafkaProducer;
     }
 
 
@@ -47,6 +52,8 @@ public class PatientService {
                 newPatient.getName(),
                 newPatient.getEmail()
         );
+
+        kafkaProducer.sendEvent(newPatient);
 
         return PatientMapper.toDTO(newPatient);
     }
