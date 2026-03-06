@@ -30,6 +30,7 @@ spring:
             - Path=/api/patients/**
           filters:
             - StripPrefix=1
+            - JwtValidation
 
         # Patient service OpenAPI docs
         #
@@ -41,4 +42,15 @@ spring:
             - Path=/api-docs/patients
           filters:
             - RewritePath=/api-docs/patients,/v3/api-docs
+
+        # Auth service OpenAPI docs
+        #
+        # REST-CLIENT  -> http://localhost:4004/api-docs/auth
+        # API-GATEWAY  -> http://auth-service:4005/v3/api-docs
+        - id: api-docs-auth-route
+          uri: http://auth-service:4005
+          predicates:
+            - Path=/api-docs/auth
+          filters:
+            - RewritePath=/api-docs/auth,/v3/api-docs
 
