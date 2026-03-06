@@ -1,7 +1,9 @@
 package org.srinith.authservice.util;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,5 +35,18 @@ public class JwtUtil {
                 .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 10)) // 10 hours
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public void validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
+        } catch (SignatureException e) {
+            throw new JwtException("Invalid JWT signature", e);
+        } catch (JwtException e) {
+            throw new JwtException("Invalid JWT", e);
+        }
     }
 }
