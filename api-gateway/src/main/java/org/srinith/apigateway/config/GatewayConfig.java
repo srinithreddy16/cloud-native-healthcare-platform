@@ -11,6 +11,13 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // Auth service: /auth/** -> http://auth-service:4005
+                .route("auth-service-route", r -> r
+                        .path("/auth/**")
+                        .filters(f -> f
+                                .stripPrefix(1)
+                                .removeRequestHeader("Content-Length"))
+                        .uri("http://auth-service:4005"))
                 // Patient service REST API
                 .route("patient-service-route", r -> r
                         .path("/api/patients/**")

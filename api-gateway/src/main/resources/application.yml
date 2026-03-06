@@ -8,9 +8,9 @@ spring:
     gateway:
       routes:
         # http://localhost:4004/auth/login
-        # API GATEWAY -> http://auth-service:4005/login
+        # API GATEWAY -> http://localhost:4005/login (use auth-service:4005 in Docker)
         - id: auth-service-route
-          uri: http://auth-service:4005
+          uri: http://localhost:4005
           predicates:
             - Path=/auth/**
           filters:
